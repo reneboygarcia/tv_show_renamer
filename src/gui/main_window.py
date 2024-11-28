@@ -14,11 +14,12 @@ import threading
 import queue
 from src.core.models.file_entry import FileEntry
 from src.core.models.renaming_method import RenamingMethod
+from src.gui.widgets.file_list import FileListManager
 
 # Try to import drag and drop support
 DRAG_DROP_SUPPORTED = False
 try:
-    from tkinterdnd2 import DND_FILES, TkinterDnD
+    from tkinterdnd2 import DND_FILES, TkinterDnD # type: ignore
 
     DRAG_DROP_SUPPORTED = True
 except (ImportError, RuntimeError) as e:
@@ -127,37 +128,17 @@ class AdvancedRenamer(TkinterDnD.Tk if DRAG_DROP_SUPPORTED else tk.Tk):
         preview_frame.grid_rowconfigure(0, weight=1)
         preview_frame.grid_columnconfigure(0, weight=1)
 
-        # File list with sorting capability
-        columns = ("Original Name", "New Name", "Path", "Status")
-        self.file_list = ttk.Treeview(preview_frame, columns=columns, show="headings")
-        
-        # Add scrollbars
-        y_scrollbar = ttk.Scrollbar(preview_frame, orient="vertical", command=self.file_list.yview)
-        x_scrollbar = ttk.Scrollbar(preview_frame, orient="horizontal", command=self.file_list.xview)
-        self.file_list.configure(yscrollcommand=y_scrollbar.set, xscrollcommand=x_scrollbar.set)
-
-        # Configure columns and add sorting
-        column_widths = {
-            "Original Name": 200,
-            "New Name": 300,
-            "Path": 300,
-            "Status": 100
-        }
-        
-        for col in columns:
-            self.file_list.heading(col, text=col, 
-                command=lambda c=col: self.sort_treeview(c))
-            self.file_list.column(col, width=column_widths[col], minwidth=100)
-
-        # Grid layout for treeview and scrollbars
+        # Replace the file list creation with:
+        self.file_list = FileListManager(preview_frame)
         self.file_list.grid(row=0, column=0, sticky="nsew")
-        y_scrollbar.grid(row=0, column=1, sticky="ns")
-        x_scrollbar.grid(row=1, column=0, sticky="ew")
+        
+        # Bind the undo event
+        self.file_list.bind("<<UndoRequested>>", lambda e: self.undo_selected())
 
         # Configure drag and drop if supported
         if DRAG_DROP_SUPPORTED:
-            self.file_list.drop_target_register(DND_FILES)
-            self.file_list.dnd_bind("<<Drop>>", self.handle_drop)
+            self.file_list.tree.drop_target_register(DND_FILES)
+            self.file_list.tree.dnd_bind("<<Drop>>", self.handle_drop)
 
             # Add drop zone label
             self.drop_label = ttk.Label(
@@ -273,14 +254,10 @@ class AdvancedRenamer(TkinterDnD.Tk if DRAG_DROP_SUPPORTED else tk.Tk):
         """Process new files and update UI"""
         for file_path in files:
             entry = FileEntry(file_path)
-            self.file_list.insert(
-                "", "end",
-                values=(
-                    entry.original_name,
-                    "",
-                    entry.path,
-                    "Not processed",
-                ),
+            self.file_list.add_file(
+                entry.original_name,
+                entry.path,
+                status="Not processed",
             )
         self.update_drop_zone()
         # Trigger preview update when files are added
@@ -288,7 +265,7 @@ class AdvancedRenamer(TkinterDnD.Tk if DRAG_DROP_SUPPORTED else tk.Tk):
 
     def clear_files(self):
         """Clear file list and show drop zone"""
-        self.file_list.delete(*self.file_list.get_children())
+        self.file_list.clear()
         self.update_drop_zone()
 
     def on_method_select(self, event):
@@ -366,12 +343,12 @@ class AdvancedRenamer(TkinterDnD.Tk if DRAG_DROP_SUPPORTED else tk.Tk):
     def update_preview(self):
         """Update the preview based on selected method."""
         # Don't clear the file list - just update existing entries
-        if not self.file_list.get_children():
+        if not self.file_list.tree.get_children():
             return
 
         # Process files in batch
-        for item in self.file_list.get_children():
-            values = self.file_list.item(item)["values"]
+        for item in self.file_list.tree.get_children():
+            values = self.file_list.tree.item(item)["values"]
             file_path = values[2]  # Get path from treeview
             
             # Create FileEntry from existing item
@@ -382,12 +359,7 @@ class AdvancedRenamer(TkinterDnD.Tk if DRAG_DROP_SUPPORTED else tk.Tk):
             self.preview_tv_show_rename(file_entry)
             
             # Update the item in treeview
-            self.file_list.item(item, values=(
-                file_entry.original_name,
-                file_entry.new_name or "Not processed",
-                file_entry.path,
-                file_entry.status
-            ))
+            self.file_list.update_item(item, original_name=file_entry.original_name, new_name=file_entry.new_name, path=file_entry.path, status=file_entry.status)
             
             # Force update of the UI
             self.update_idletasks()
@@ -444,8 +416,8 @@ class AdvancedRenamer(TkinterDnD.Tk if DRAG_DROP_SUPPORTED else tk.Tk):
     def start_batch(self):
         """Execute the batch renaming operation."""
         files = [
-            FileEntry(self.file_list.item(item)["values"][2])  # Create FileEntry from path
-            for item in self.file_list.get_children()
+            FileEntry(self.file_list.tree.item(item)["values"][2])  # Create FileEntry from path
+            for item in self.file_list.tree.get_children()
         ]
         
         if not files:
@@ -463,8 +435,8 @@ class AdvancedRenamer(TkinterDnD.Tk if DRAG_DROP_SUPPORTED else tk.Tk):
         }
 
         success_count = 0
-        for item in self.file_list.get_children():
-            values = self.file_list.item(item)["values"]
+        for item in self.file_list.tree.get_children():
+            values = self.file_list.tree.item(item)["values"]
             original_name = values[0]
             new_name = values[1]
             current_path = values[2]
@@ -480,17 +452,11 @@ class AdvancedRenamer(TkinterDnD.Tk if DRAG_DROP_SUPPORTED else tk.Tk):
                 undo_batch["files"].append((new_path, original_name))
                 
                 # Update status in treeview
-                self.file_list.item(
-                    item,
-                    values=(original_name, new_name, new_path, "Success")
-                )
+                self.file_list.update_item(item, new_name=new_name, path=new_path, status="Success")
                 success_count += 1
                 
             except Exception as e:
-                self.file_list.item(
-                    item,
-                    values=(original_name, new_name, current_path, f"Error: {str(e)}")
-                )
+                self.file_list.update_item(item, new_name=new_name, path=current_path, status=f"Error: {str(e)}")
 
         if undo_batch["files"]:
             self.undo_stack.append(undo_batch)
@@ -623,7 +589,7 @@ class AdvancedRenamer(TkinterDnD.Tk if DRAG_DROP_SUPPORTED else tk.Tk):
 
     def update_drop_zone(self):
         """Update drop zone visibility based on file list content"""
-        if len(self.file_list.get_children()) == 0:
+        if len(self.file_list.tree.get_children()) == 0:
             self.drop_label.place(relx=0.5, rely=0.5, anchor="center")
         else:
             self.drop_label.place_forget()
@@ -713,14 +679,14 @@ class AdvancedRenamer(TkinterDnD.Tk if DRAG_DROP_SUPPORTED else tk.Tk):
 
     def show_context_menu(self, event):
         """Show context menu on right click."""
-        item = self.file_list.identify_row(event.y)
+        item = self.file_list.tree.identify_row(event.y)
         if item:
-            self.file_list.selection_set(item)
+            self.file_list.tree.selection_set(item)
             self.context_menu.post(event.x_root, event.y_root)
 
     def undo_selected(self):
         """Undo rename for selected files."""
-        selected = self.file_list.selection()
+        selected = self.file_list.tree.selection()
         if not selected:
             return
 
@@ -731,7 +697,7 @@ class AdvancedRenamer(TkinterDnD.Tk if DRAG_DROP_SUPPORTED else tk.Tk):
         }
 
         for item in selected:
-            values = self.file_list.item(item)["values"]
+            values = self.file_list.tree.item(item)["values"]
             original_name = values[0]
             current_path = values[2]
             
@@ -748,13 +714,11 @@ class AdvancedRenamer(TkinterDnD.Tk if DRAG_DROP_SUPPORTED else tk.Tk):
                     undo_batch["files"].append((current_path, original_name))
                     
                     # Update treeview
-                    self.file_list.set(item, "Status", "Undone")
-                    self.file_list.set(item, "Path", original_path)
-                    self.file_list.set(item, "New Name", "")
+                    self.file_list.update_item(item, new_name="", path=original_path, status="Undone")
             
             except Exception as e:
                 self.logger.error(f"Error undoing rename: {e}")
-                self.file_list.set(item, "Status", f"Undo failed: {str(e)}")
+                self.file_list.update_item(item, new_name="", path=current_path, status=f"Undo failed: {str(e)}")
 
         # Add to undo history
         if undo_batch["files"]:
