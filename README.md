@@ -1,78 +1,110 @@
-# TV Show Renamer
-A simple script for renaming multiple TV episodes at once using information from TMDb.
 
-## Features
 
-* Search & find the show you want directly on the console.
-* Rename all the episode(s) of a show with the official episode name.
-* Bulk rename normal files serially.
+![Banner](images/banner.png)
 
-## Prerequisites
+## Introduction
 
-* [Python 3.9](https://www.python.org/downloads/) or newer.
-* A TMDb API key (free).
+**TV Show Renamer** is a user-friendly application designed to help you organize and rename your TV show collection effortlessly. With a simple interface and automated features, managing your media library has never been easier.
 
 ## Installation
 
-1. Clone the repository:
+To get started with TV Show Renamer, follow these easy steps:
+
+### Prerequisites
+
+Ensure you have the following installed on your system:
+
+- [Python 3.7+](https://www.python.org/downloads/)
+- [Make](https://www.gnu.org/software/make/)
+
+### Steps
+
+1. **Clone the Repository**
+
    ```bash
-   git clone https://github.com/tkdnd/tv-show-renamer.git
-   cd tv-show-renamer
+   git clone https://github.com/reneboygarcia/tv_show_renamer.git
+   cd tv_show_renamer
    ```
 
-2. Create and activate a virtual environment:
+2. **Install Dependencies**
+
+   Use the provided Makefile for easy setup:
+
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   make install
    ```
 
-3. Copy `.env.example` to `.env`:
+   This command will:
+
+   - Create a virtual environment
+   - Install required Python packages from `requirements.txt`
+   - Set up necessary configurations for the application
+
+3. **Verify Installation**
+
+   To confirm that all dependencies are correctly installed, run:
+
    ```bash
-   cp .env.example .env
+   make verify-tcltk
    ```
 
-4. Install dependencies:
+   This will check the Tcl/Tk installation and ensure that the environment is properly configured.
+
+## Quick Start
+
+Start using TV Show Renamer in no time:
+
+1. **Activate Virtual Environment**
+
    ```bash
-   pip install -r requirements.txt
+   source venv/bin/activate
    ```
 
-## API Setup
+2. **Run the Application**
 
-1. Get your TMDB API key:
-   - Create an account at [The Movie Database](https://www.themoviedb.org/)
-   - Go to Settings -> API and request an API key
-   - Copy your API key
+   ```bash
+   make run
+   ```
 
-2. Update `.env` file:
-   - Replace `your_tmdb_api_key_here` with your actual TMDB API key
+3. **Follow On-Screen Instructions**
 
-⚠️ Important: Never commit your `.env` file containing real API keys to version control.
+   The application will guide you through selecting your TV show directory and renaming options.
 
 ## Usage
 
-1. Add files to be renamed:
-   - Open the application by running `python main.py`
-   - Click on the "Add Files" button in the toolbar
-   - Select the files you want to rename
+TV Show Renamer offers a range of features to simplify your media management:
 
-2. Select a renaming method:
-   - In the "Renaming Methods" section, choose a method from the list
-   - The description of the selected method will be displayed
+- **Automatic Renaming:** Rename your TV show files based on season and episode numbers.
+- **Organize Media:** Sort your files into structured folders.
+- **Customization:** Configure naming conventions as per your preference.
 
-3. Rename the files:
-   - Click on the "Rename" button in the toolbar
-   - The files will be renamed according to the selected method
+### Example Command
 
-4. Undo the last renaming batch (if needed):
-   - Click on the "Undo" button in the toolbar to revert the last renaming operation
+```bash
+make run
+```
 
-5. Clear the file list:
-   - Click on the "Clear" button in the toolbar to remove all files from the list
+This command launches the application, allowing you to select your TV show folder and apply renaming rules.
 
-6. Exit the application:
-   - Close the application window or press `Ctrl+C` in the terminal
+## Known Issues and Limitations
 
-Note: Ensure that you have configured your `.env` file with the correct TMDB API key before using the application.
-For more advanced usage and customization, refer to the source code and comments within `main.py`.
+- **Operating Systems:** Currently supports Windows, macOS, and Linux.
+- **File Formats:** Supports common video formats like `.mp4`, `.mkv`, and `.avi`.
+- **Metadata Accuracy:** Relies on TMDB for metadata; discrepancies may occur if TMDB data is outdated.
+
+## Getting Help
+
+If you encounter any issues or have questions, feel free to reach out:
+
+- **Open an Issue:** [GitHub Issues](https://github.com/yourusername/tv-show-renamer/issues)
+
+## Acknowledgments
+
+- **The Movie Database (TMDB):** For providing comprehensive media metadata.  
+  [TMDB Logos Attribution](https://www.themoviedb.org/about/logos-attribution)
+- **Open Source Contributors:** Thank you to all who contribute to making TV Show Renamer better!
+
+```
+
 
 

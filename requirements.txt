@@ -1,5 +1,4 @@
-Pillow>=10.1.0
-typing>=3.7.4
-pyobjc-framework-Cocoa>=9.2  # For native macOS drag-and-drop support
-tmdbv3api>=1.9.0  # For TV show information from TMDb
-python-dotenv>=1.0.0  # For managing API keys
+Pillow>=9.0.0
+python-dotenv>=0.19.0
+tmdbv3api>=1.7.0
+tkinterdnd2>=0.3.0; platform_system=="Windows" or platform_system=="Linux" or platform_system=="Darwin"
