@@ -57,7 +57,11 @@ Start using TV Show Renamer in no time:
 1. **Activate Virtual Environment**
 
    ```bash
-   source venv/bin/activate
+   .\venv\Scripts\activate # For Windows
+   ```
+
+   ```bash
+   source venv/bin/activate # For macOS/Linux
    ```
 
 2. **Run the Application**

@@ -3,7 +3,8 @@
 
 # Files/Folders
 /deprecated/
-# /tkdnd
+/tkdnd
+
 # Python
 __pycache__/
 *.py[cod]
