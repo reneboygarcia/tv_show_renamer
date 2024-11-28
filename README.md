@@ -102,9 +102,5 @@ If you encounter any issues or have questions, feel free to reach out:
 
 - **The Movie Database (TMDB):** For providing comprehensive media metadata.  
   [TMDB Logos Attribution](https://www.themoviedb.org/about/logos-attribution)
-- **Open Source Contributors:** Thank you to all who contribute to making TV Show Renamer better!
-
-```
-
 
 
