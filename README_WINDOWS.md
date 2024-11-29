@@ -1,72 +1,75 @@
-
-
 ![Banner](images/banner.png)
 
 ## Introduction
 
 **TV Show Renamer** is a user-friendly application designed to help you organize and rename your TV show collection effortlessly. With a simple interface and automated features, managing your media library has never been easier.
 
-## Installation
+## Installation (Windows Setup Without Makefile)
 
-To get started with TV Show Renamer on Windows, follow the installation instructions in [README_WINDOWS.md](README_WINDOWS.md).
+To get started with TV Show Renamer on Windows without using a Makefile, follow these steps:
 
 ### Prerequisites
 
 Ensure you have the following installed on your system:
 
 - [Python 3.7+](https://www.python.org/downloads/)
-- [Make](https://www.gnu.org/software/make/)
 
 ### Steps
 
 1. **Clone the Repository**
+
+   Open Command Prompt and run:
 
    ```bash
    git clone https://github.com/reneboygarcia/tv_show_renamer.git
    cd tv_show_renamer
    ```
 
-2. **Install Dependencies**
+2. **Create a Virtual Environment**
 
-   Use the provided Makefile for easy setup:
-
-   ```bash
-   make install
-   ```
-
-   This command will:
-
-   - Create a virtual environment
-   - Install required Python packages from `requirements.txt`
-   - Set up necessary configurations for the application
-
-3. **Verify Installation**
-
-   To confirm that all dependencies are correctly installed, run:
+   In the `tv_show_renamer` directory, create a virtual environment:
 
    ```bash
-   make verify-tcltk
+   python -m venv venv
    ```
 
-   This will check the Tcl/Tk installation and ensure that the environment is properly configured.
+3. **Activate the Virtual Environment**
+
+   ```bash
+   .\venv\Scripts\activate
+   ```
+
+4. **Install Dependencies**
+
+   With the virtual environment activated, install the required Python packages:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+5. **Verify Tcl/Tk Installation**
+
+   Ensure Tcl/Tk is installed correctly by running a simple Python script:
+
+   ```python
+   python -c "import tkinter; tkinter._test()"
+   ```
+
+   This should open a small window if Tcl/Tk is installed properly.
 
 ## Quick Start
 
-Start using TV Show Renamer in no time:
+Start using TV Show Renamer:
 
-1. **Activate Virtual Environment**
+1. **Run the Application**
 
-   ```bash
-   source venv/bin/activate # For macOS/Linux
-   ```
-
-2. **Run the Application**
+   With the virtual environment still activated, run:
 
    ```bash
-   make run
+   python src/gui/main_window.py
    ```
 
-3. **Follow On-Screen Instructions**
+2. **Follow On-Screen Instructions**
 
    The application will guide you through selecting your TV show directory and renaming options.
 
@@ -77,14 +80,6 @@ TV Show Renamer offers a range of features to simplify your media management:
 - **Automatic Renaming:** Rename your TV show files based on season and episode numbers.
 - **Organize Media:** Sort your files into structured folders.
 - **Customization:** Configure naming conventions as per your preference.
-
-### Example Command
-
-```bash
-make run
-```
-
-This command launches the application, allowing you to select your TV show folder and apply renaming rules.
 
 ## Known Issues and Limitations
 
@@ -101,6 +96,4 @@ If you encounter any issues or have questions, feel free to reach out:
 ## Acknowledgments
 
 - **The Movie Database (TMDB):** For providing comprehensive media metadata.  
-  [TMDB Logos Attribution](https://www.themoviedb.org/about/logos-attribution)
-
-
+  [TMDB Logos Attribution](https://www.themoviedb.org/about/logos-attribution) 
