@@ -309,6 +309,16 @@ class TVShowRenamer:
         """Remove invalid characters from filename."""
         # Replace invalid characters with underscore
         invalid_chars = r'[<>:"/\\|?*]'
+        sanitized = re.sub(invalid_chars, "_", filename)
+        
+        # Clean up multiple spaces and underscore-space combinations
+        sanitized = re.sub(r'_\s+', '_', sanitized)  # Replace underscore followed by spaces with single underscore
+        sanitized = re.sub(r'\s+_', '_', sanitized)  # Replace spaces followed by underscore with single underscore
+        sanitized = re.sub(r'\s+', ' ', sanitized)   # Replace multiple spaces with single space
+        sanitized = re.sub(r'^\s+|\s+$', '', sanitized)  # Remove leading/trailing spaces
+        
+        return sanitized
+
         return re.sub(invalid_chars, "_", filename)
 
     @log_safely
@@ -316,6 +326,7 @@ class TVShowRenamer:
         """Extract episode number from filename."""
         # Patterns to match episode numbers
         patterns = [
+            r"_-_(\d{2})(?:_|\(|$)",  # Match _-_01 format specifically
             r"E(\d{1,2})",  # Match E01, E1, etc.
             r"^(\d{1,2})[\. _]-",  # Match episode numbers at start (e.g., "01 - ")
             r"x(\d{1,2})",  # Match 1x01 format
