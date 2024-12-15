@@ -36,39 +36,33 @@ class TVShowRenamer:
 
         # Add API call counters
         self.api_call_count = {
-            'search': 0,
-            'show_details': 0,
-            'season_details': 0,
-            'episode_details': 0
-        }
-        
-        # Add cache hit counters
-        self.cache_hits = {
-            'show': 0,
-            'season': 0,
-            'episode': 0,
-            'search': 0
+            "search": 0,
+            "show_details": 0,
+            "season_details": 0,
+            "episode_details": 0,
         }
 
-        self.performance_stats = {
-            'api_times': [],
-            'cache_times': []
-        }
+        # Add cache hit counters
+        self.cache_hits = {"show": 0, "season": 0, "episode": 0, "search": 0}
+
+        self.performance_stats = {"api_times": [], "cache_times": []}
 
     def measure_performance(func):
         """Decorator to measure function execution time"""
+
         def wrapper(self, *args, **kwargs):
             start_time = time.time()
             result = func(self, *args, **kwargs)
             end_time = time.time()
-            
+
             # Store timing based on whether it was a cache hit
             if result and any(hit > 0 for hit in self.cache_hits.values()):
-                self.performance_stats['cache_times'].append(end_time - start_time)
+                self.performance_stats["cache_times"].append(end_time - start_time)
             else:
-                self.performance_stats['api_times'].append(end_time - start_time)
-            
+                self.performance_stats["api_times"].append(end_time - start_time)
+
             return result
+
         return wrapper
 
     @log_safely
@@ -120,6 +114,10 @@ class TVShowRenamer:
 
         # Common TV show filename patterns
         patterns = [
+            # Pattern: [Tag]Show_-_01 (metadata)
+            r"^\[.*?\](.*?)_-_(\d{2})(?:_|\(|$)",
+            # Pattern: [Tag]Show_-_01 format
+            r"^\[.*?\](.*?)_-_(\d{2})(?:_|\()",
             # Pattern: Show.Name.S01E02 or Show.Name.S1E02
             r"^(.*?)[\. _]S0?(\d{1,2})E(\d{1,2})",
             # Pattern: Show.Name.1x02 or Show.Name.01x02
@@ -161,13 +159,17 @@ class TVShowRenamer:
         """Get API and cache statistics"""
         total_calls = sum(self.api_call_count.values())
         total_hits = sum(self.cache_hits.values())
-        
+
         return {
-            'api_calls': self.api_call_count,
-            'cache_hits': self.cache_hits,
-            'total_calls': total_calls,
-            'total_hits': total_hits,
-            'cache_hit_rate': f"{(total_hits / (total_calls + total_hits) * 100):.2f}%" if total_calls + total_hits > 0 else "0%"
+            "api_calls": self.api_call_count,
+            "cache_hits": self.cache_hits,
+            "total_calls": total_calls,
+            "total_hits": total_hits,
+            "cache_hit_rate": (
+                f"{(total_hits / (total_calls + total_hits) * 100):.2f}%"
+                if total_calls + total_hits > 0
+                else "0%"
+            ),
         }
 
     @measure_performance
@@ -175,12 +177,12 @@ class TVShowRenamer:
         """Get show information from TMDb with caching."""
         cache_key = show_name.lower()
         if cache_key in self.show_cache:
-            self.cache_hits['show'] += 1
+            self.cache_hits["show"] += 1
             self.logger.debug(f"Cache hit for show: {show_name}")
             return self.show_cache[cache_key]
 
         try:
-            self.api_call_count['search'] += 1
+            self.api_call_count["search"] += 1
             # Cache miss - fetch from API
             self.logger.debug(f"Cache miss for show: {show_name}")
             search_results = self.search.tv_shows(term=show_name)
@@ -195,8 +197,10 @@ class TVShowRenamer:
                 "id": show.id,
                 "name": show_details.name,
                 "original_name": show_details.original_name,
-                "first_air_date": getattr(show_details, 'first_air_date', None),
-                "overview": getattr(show_details, 'overview', '')[:200]  # Limit overview length
+                "first_air_date": getattr(show_details, "first_air_date", None),
+                "overview": getattr(show_details, "overview", "")[
+                    :200
+                ],  # Limit overview length
             }
             self.show_cache[cache_key] = show_data
             return show_data
@@ -205,27 +209,31 @@ class TVShowRenamer:
             self.logger.error(f"Error finding show '{show_name}': {str(e)}")
             return None
 
-    def get_episode_info(self, show_id: int, season: int, episode: int) -> Optional[Dict]:
+    def get_episode_info(
+        self, show_id: int, season: int, episode: int
+    ) -> Optional[Dict]:
         """Get episode information from TMDb with caching."""
         cache_key = f"{show_id}_{season}_{episode}"
         if cache_key in self.episode_cache:
-            self.cache_hits['episode'] += 1
+            self.cache_hits["episode"] += 1
             self.logger.debug(f"Cache hit for episode: {cache_key}")
             return self.episode_cache[cache_key]
 
         try:
-            self.api_call_count['episode_details'] += 1
+            self.api_call_count["episode_details"] += 1
             # Cache miss - fetch from API
             self.logger.debug(f"Cache miss for episode: {cache_key}")
             details = self.episode.details(show_id, season, episode)
-            
+
             # Store minimal data in cache
             episode_data = {
                 "name": details.name,
-                "air_date": getattr(details, 'air_date', None),
+                "air_date": getattr(details, "air_date", None),
                 "episode_number": details.episode_number,
                 "season_number": details.season_number,
-                "overview": getattr(details, 'overview', '')[:200]  # Limit overview length
+                "overview": getattr(details, "overview", "")[
+                    :200
+                ],  # Limit overview length
             }
             self.episode_cache[cache_key] = episode_data
             return episode_data
@@ -238,23 +246,23 @@ class TVShowRenamer:
         """Get season details with caching."""
         cache_key = f"{show_id}_{season_num}"
         if cache_key in self.season_cache:
-            self.cache_hits['season'] += 1
+            self.cache_hits["season"] += 1
             self.logger.debug(f"Cache hit for season: {cache_key}")
             return self.season_cache[cache_key]
 
         try:
-            self.api_call_count['season_details'] += 1
+            self.api_call_count["season_details"] += 1
             # Cache miss - fetch from API
             self.logger.debug(f"Cache miss for season: {cache_key}")
             season = self.tv.season(show_id, season_num)
-            
+
             # Store minimal data in cache
             season_data = {
                 "episodes": [
                     {
                         "episode_number": ep.episode_number,
                         "name": ep.name,
-                        "air_date": getattr(ep, 'air_date', None)
+                        "air_date": getattr(ep, "air_date", None),
                     }
                     for ep in season.episodes
                 ]
@@ -330,14 +338,18 @@ class TVShowRenamer:
 
     def get_performance_stats(self):
         """Get performance statistics"""
-        api_times = self.performance_stats['api_times']
-        cache_times = self.performance_stats['cache_times']
-        
+        api_times = self.performance_stats["api_times"]
+        cache_times = self.performance_stats["cache_times"]
+
         return {
-            'avg_api_time': f"{sum(api_times) / len(api_times):.3f}s" if api_times else "N/A",
-            'avg_cache_time': f"{sum(cache_times) / len(cache_times):.3f}s" if cache_times else "N/A",
-            'total_api_time': f"{sum(api_times):.3f}s",
-            'total_cache_time': f"{sum(cache_times):.3f}s",
-            'api_calls_count': len(api_times),
-            'cache_hits_count': len(cache_times)
+            "avg_api_time": (
+                f"{sum(api_times) / len(api_times):.3f}s" if api_times else "N/A"
+            ),
+            "avg_cache_time": (
+                f"{sum(cache_times) / len(cache_times):.3f}s" if cache_times else "N/A"
+            ),
+            "total_api_time": f"{sum(api_times):.3f}s",
+            "total_cache_time": f"{sum(cache_times):.3f}s",
+            "api_calls_count": len(api_times),
+            "cache_hits_count": len(cache_times),
         }
