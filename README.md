@@ -8,99 +8,80 @@
 
 ## Installation
 
-To get started with TV Show Renamer on Windows, follow the installation instructions in [README_WINDOWS.md](README_WINDOWS.md).
+> **For Windows instructions, see:** [README_WINDOWS.md](README_WINDOWS.md)
 
 ### Prerequisites
 
-Ensure you have the following installed on your system:
-
 - [Python 3.7+](https://www.python.org/downloads/)
 - [Make](https://www.gnu.org/software/make/)
+- [Homebrew](https://brew.sh/) (macOS only)
+- [Git](https://git-scm.com/downloads)
 
-### Steps
+### Quick Setup
 
-1. **Clone the Repository**
+```bash
+# Clone the repository
+$ git clone https://github.com/reneboygarcia/tv_show_renamer.git
+$ cd tv_show_renamer
 
-   ```bash
-   git clone https://github.com/reneboygarcia/tv_show_renamer.git
-   cd tv_show_renamer
-   ```
+# (macOS only) Ensure Tcl/Tk is installed
+$ brew install tcl-tk
 
-2. **Install Dependencies**
+# Install all dependencies and set up everything
+$ make install
+```
 
-   Use the provided Makefile for easy setup:
+This will:
+- Create a Python virtual environment
+- Install required Python packages
+- Set up tkdnd for drag-and-drop support
 
-   ```bash
-   make install
-   ```
+**If you encounter issues with tkdnd:**
+```bash
+make clean
+make venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
-   This command will:
-
-   - Create a virtual environment
-   - Install required Python packages from `requirements.txt`
-   - Set up necessary configurations for the application
-
-3. **Verify Installation**
-
-   To confirm that all dependencies are correctly installed, run:
-
-   ```bash
-   make verify-tcltk
-   ```
-
-   This will check the Tcl/Tk installation and ensure that the environment is properly configured.
+**Verify Tcl/Tk:**
+```bash
+make verify-tcltk
+```
 
 ## Quick Start
 
-Start using TV Show Renamer in no time:
-
-1. **Activate Virtual Environment**
-
-   ```bash
-   source venv/bin/activate # For macOS/Linux
-   ```
-
-2. **Run the Application**
-
-   ```bash
-   make run
-   ```
-
-3. **Follow On-Screen Instructions**
-
-   The application will guide you through selecting your TV show directory and renaming options.
-
-## Usage
-
-TV Show Renamer offers a range of features to simplify your media management:
-
-- **Automatic Renaming:** Rename your TV show files based on season and episode numbers.
-- **Organize Media:** Sort your files into structured folders.
-- **Customization:** Configure naming conventions as per your preference.
-
-### Example Command
-
 ```bash
-make run
+source venv/bin/activate  # Activate the virtual environment
+make run                  # Start the application
 ```
 
-This command launches the application, allowing you to select your TV show folder and apply renaming rules.
+Follow the on-screen instructions to select your TV show directory and apply renaming rules.
+## Features
 
-## Known Issues and Limitations
+- **Automatic Renaming:** Rename TV show files based on season/episode.
+- **Organize Media:** Sort files into folders automatically.
+- **Custom Naming:** Choose your own filename conventions.
+- **Drag-and-Drop:** (macOS/Linux) Requires tkdnd, installed automatically if possible.
+## Troubleshooting
 
-- **Operating Systems:** Currently supports Windows, macOS, and Linux.
-- **File Formats:** Supports common video formats like `.mp4`, `.mkv`, and `.avi`.
-- **Metadata Accuracy:** Relies on TMDB for metadata; discrepancies may occur if TMDB data is outdated.
+- **tkdnd Installation Fails:**
+  - Run: `make clean && make venv && source venv/bin/activate && pip install -r requirements.txt`
+  - Ensure you have Tcl/Tk: `brew install tcl-tk`
 
+- **Other Issues:**
+  - Make sure your Python version is 3.7 or higher.
+  - If you see errors about missing dependencies, re-run `make install` after activating your virtual environment.
+
+## Supported Platforms and Formats
+
+- **OS:** Windows, macOS, Linux
+- **Video:** `.mp4`, `.mkv`, `.avi`, and more
+- **Metadata:** Uses TMDB; accuracy depends on TMDB data
 ## Getting Help
 
-If you encounter any issues or have questions, feel free to reach out:
-
-- **Open an Issue:** [GitHub Issues](https://github.com/yourusername/tv-show-renamer/issues)
+- **Open an Issue:** [GitHub Issues](https://github.com/reneboygarcia/tv_show_renamer/issues)
 
 ## Acknowledgments
 
-- **The Movie Database (TMDB):** For providing comprehensive media metadata.  
-  [TMDB Logos Attribution](https://www.themoviedb.org/about/logos-attribution)
-
-
+- **The Movie Database (TMDB):** For comprehensive media metadata ([TMDB Logos Attribution](https://www.themoviedb.org/about/logos-attribution))
