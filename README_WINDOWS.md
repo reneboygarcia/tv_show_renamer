@@ -12,7 +12,7 @@ To get started with TV Show Renamer on Windows without using a Makefile, follow 
 
 Ensure you have the following installed on your system:
 
-- [Python 3.7+](https://www.python.org/downloads/)
+- [Python 3.10+](https://www.python.org/downloads/)
 
 ### Steps
 
