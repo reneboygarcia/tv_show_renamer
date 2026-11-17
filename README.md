@@ -12,7 +12,7 @@
 
 ### Prerequisites
 
-- [Python 3.7+](https://www.python.org/downloads/)
+- [Python 3.10+](https://www.python.org/downloads/)
 - [Make](https://www.gnu.org/software/make/)
 - [Homebrew](https://brew.sh/) (macOS only)
 - [Git](https://git-scm.com/downloads)
@@ -70,7 +70,7 @@ Follow the on-screen instructions to select your TV show directory and apply ren
   - Ensure you have Tcl/Tk: `brew install tcl-tk`
 
 - **Other Issues:**
-  - Make sure your Python version is 3.7 or higher.
+  - Make sure your Python version is 3.10 or higher.
   - If you see errors about missing dependencies, re-run `make install` after activating your virtual environment.
 
 ## Supported Platforms and Formats
