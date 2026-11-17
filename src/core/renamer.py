@@ -75,7 +75,7 @@ class TVShowRenamer:
         self.logger.debug(f"Extracting show info from filename: {filename}")
 
         # Special handling for episode-only format with show title
-        episode_only_pattern = r"^(\d{1,2})[\. _]-[\. _](.*?)(?:\[.*?\])*\..*$"
+        episode_only_pattern = r"^(\d{1,2})[\. _]-[\. _](.*?)(?:\[.*?\])?\..*$"
         match = re.search(episode_only_pattern, filename, re.IGNORECASE)
         if match:
             try:
